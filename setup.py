@@ -9,4 +9,7 @@ setup(name='slack-activity-report',
               'slack-activity-report = activityreport.main:main'
           ],
       },
+      install_requires=[
+          'slackclient'
+      ],
       )
