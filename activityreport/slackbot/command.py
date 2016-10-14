@@ -79,7 +79,7 @@ def logout(argv, timestamp):
         raise
 
 
-def inout(argv, timestamp):
+def inout(argv):
     try:
         cmdarg = CommandArguments()
         cmdarg.define('date')
