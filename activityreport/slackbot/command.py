@@ -115,6 +115,9 @@ def description(uuid, argv):
     except NotEnoughArgumentError:
         raise
 
+    user = storage.User(uuid)
+    user.description(args.message, date=args.date)
+
 
 def build(uuid, argv):
     try:

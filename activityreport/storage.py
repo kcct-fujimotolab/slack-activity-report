@@ -92,6 +92,15 @@ class User(object):
 
         cursor.close()
 
+    def description(self, content, date=None):
+        dt = date or datetime.datetime.now()
+        cursor = connection.cursor()
+        cursor.execute('''UPDATE activities
+                       SET content = :content
+                       WHERE DATE(start_time) = DATE(:time) OR DATE(end_time) = DATE(:time)''', {'content': content, 'time': dt})
+
+        cursor.close()
+
     def config(self, key, value):
         if key == 'name':
             cursor = connection.cursor()
