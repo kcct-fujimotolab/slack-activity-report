@@ -43,12 +43,12 @@ class _ArgumentsDictionary(dict):
 
 
 aliases = {
-    'config': ('config'),
+    'config': ('config', ),
     'login': ('login', 'in', 'i'),
     'logout': ('logout', 'out', 'o'),
     'inout': ('inout', 'io'),
     'description': ('description', 'd'),
-    'build': ('build'),
+    'build': ('build', ),
     'help': ('help', 'h'),
 }
 
