@@ -30,32 +30,33 @@ class SlackBot(object):
         for item in data:
             if ('type' in item) and (item['type'] == 'message') and ('subtype' not in item):
                 cmd, argv = self._parse_message(item['text'])
-                timestamp = float(item['ts'])
+                timestamp = int(float(item['ts']))
+                uuid = item['user']
 
                 try:
                     if cmd in command.aliases['config']:
-                        command.config(argv)
+                        command.config(uuid, argv)
 
                     elif cmd in command.aliases['login']:
-                        command.login(argv, timestamp)
+                        command.login(uuid, argv, timestamp)
 
                     elif cmd in command.aliases['logout']:
-                        command.logout(argv, timestamp)
+                        command.logout(uuid, argv, timestamp)
 
                     elif cmd in command.aliases['inout']:
-                        command.inout(argv)
+                        command.inout(uuid, argv)
 
                     elif cmd in command.aliases['description']:
-                        command.description(argv)
+                        command.description(uuid, argv)
 
                     elif cmd in command.aliases['build']:
-                        command.build(argv)
+                        command.build(uuid, argv)
 
                     elif cmd in command.aliases['help']:
                         command.help(argv)
 
                 except NotEnoughArgumentError as e:
-                    self.reply(item['channel'], item['user'], e)
+                    self.reply(item['channel'], uuid, e)
 
     def _parse_message(self, message):
         args = message.strip().split()

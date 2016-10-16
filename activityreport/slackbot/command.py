@@ -1,3 +1,8 @@
+import datetime
+
+from .. import storage
+
+
 class NotEnoughArgumentError(Exception):
     pass
 
@@ -48,7 +53,7 @@ aliases = {
 }
 
 
-def config(argv):
+def config(uuid, argv):
     try:
         cmdarg = CommandArguments()
         cmdarg.define('key')
@@ -58,8 +63,11 @@ def config(argv):
     except NotEnoughArgumentError:
         raise
 
+    user = storage.User(uuid)
+    user.config(args.key, args.value)
 
-def login(argv, timestamp):
+
+def login(uuid, argv, timestamp):
     try:
         cmdarg = CommandArguments()
         cmdarg.define('time', optional=True)
@@ -68,8 +76,11 @@ def login(argv, timestamp):
     except NotEnoughArgumentError:
         raise
 
+    user = storage.User(uuid)
+    user.login(datetime.datetime.fromtimestamp(timestamp))
 
-def logout(argv, timestamp):
+
+def logout(uuid, argv, timestamp):
     try:
         cmdarg = CommandArguments()
         cmdarg.define('time', optional=True)
@@ -78,8 +89,11 @@ def logout(argv, timestamp):
     except NotEnoughArgumentError:
         raise
 
+    user = storage.User(uuid)
+    user.logout(datetime.datetime.fromtimestamp(timestamp))
 
-def inout(argv):
+
+def inout(uuid, argv):
     try:
         cmdarg = CommandArguments()
         cmdarg.define('date')
@@ -91,7 +105,7 @@ def inout(argv):
         raise
 
 
-def description(argv):
+def description(uuid, argv):
     try:
         cmdarg = CommandArguments()
         cmdarg.define('message')
@@ -102,7 +116,7 @@ def description(argv):
         raise
 
 
-def build(argv):
+def build(uuid, argv):
     try:
         cmdarg = CommandArguments()
         cmdarg.define('month', optional=True)
