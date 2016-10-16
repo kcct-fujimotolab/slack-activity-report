@@ -35,19 +35,23 @@ class SlackBot(object):
 
                 try:
                     if cmd in command.aliases['config']:
-                        command.config(uuid, argv)
+                        res = command.config(uuid, argv)
+                        self.reply(item['channel'], uuid, 'ok'.format(**res))
 
                     elif cmd in command.aliases['login']:
-                        command.login(uuid, argv, timestamp)
+                        res = command.login(uuid, argv, timestamp)
+                        self.reply(item['channel'], uuid, 'logged-in at {time}'.format(**res))
 
                     elif cmd in command.aliases['logout']:
-                        command.logout(uuid, argv, timestamp)
+                        res = command.logout(uuid, argv, timestamp)
+                        self.reply(item['channel'], uuid, 'logged-out at {time}'.format(**res))
 
                     elif cmd in command.aliases['inout']:
                         command.inout(uuid, argv)
 
                     elif cmd in command.aliases['description']:
-                        command.description(uuid, argv)
+                        res = command.description(uuid, argv)
+                        self.reply(item['channel'], uuid, 'ok'.format(**res))
 
                     elif cmd in command.aliases['build']:
                         command.build(uuid, argv)

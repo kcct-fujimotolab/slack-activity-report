@@ -66,6 +66,8 @@ def config(uuid, argv):
     user = storage.User(uuid)
     user.config(args.key, args.value)
 
+    return {'key': args.key, 'value': args.value}
+
 
 def login(uuid, argv, timestamp):
     try:
@@ -76,8 +78,12 @@ def login(uuid, argv, timestamp):
     except NotEnoughArgumentError:
         raise
 
+    dt = datetime.datetime.fromtimestamp(timestamp)
+
     user = storage.User(uuid)
-    user.login(datetime.datetime.fromtimestamp(timestamp))
+    user.login(dt)
+
+    return {'time': str(dt)}
 
 
 def logout(uuid, argv, timestamp):
@@ -89,8 +95,12 @@ def logout(uuid, argv, timestamp):
     except NotEnoughArgumentError:
         raise
 
+    dt = datetime.datetime.fromtimestamp(timestamp)
+
     user = storage.User(uuid)
-    user.logout(datetime.datetime.fromtimestamp(timestamp))
+    user.logout(dt)
+
+    return {'time': str(dt)}
 
 
 def inout(uuid, argv):
@@ -117,6 +127,8 @@ def description(uuid, argv):
 
     user = storage.User(uuid)
     user.description(args.message, date=args.date)
+
+    return {'message': args.message}
 
 
 def build(uuid, argv):
