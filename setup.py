@@ -10,6 +10,10 @@ setup(name='slack-activity-report',
           ],
       },
       install_requires=[
-          'slackclient'
+          'slackclient',
+          'ArrayImage'
       ],
+      dependency_links=[
+          'git+https://github.com/Lynte/python-ArrayImage.git#egg=ArrayImage'
+          ],
       )
