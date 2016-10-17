@@ -2,8 +2,6 @@ import datetime
 import os
 import sqlite3
 
-import dateutil.parser
-
 connection = None
 
 
