@@ -95,7 +95,7 @@ class User(object):
         cursor = connection.cursor()
         cursor.execute('''UPDATE activities
                        SET content = :content
-                       WHERE DATE(start_time) = DATE(:time) OR DATE(end_time) = DATE(:time)''', {'content': content, 'time': dt})
+                       WHERE user_id = :id AND (DATE(start_time) = DATE(:time) OR DATE(end_time) = DATE(:time))''', {'content': content, 'time': dt, 'id': self.id})
 
         cursor.close()
 
