@@ -3,7 +3,7 @@ import time
 from slackclient import SlackClient
 
 from . import command
-from .command import NotEnoughArgumentError
+from . import parser
 
 
 class ConnectionFailedError(Exception):
@@ -29,7 +29,7 @@ class SlackBot(object):
     def _parse_response(self, data):
         for item in data:
             if ('type' in item) and (item['type'] == 'message') and ('subtype' not in item):
-                cmd, argv = self._parse_message(item['text'])
+                cmd, argv = parser.parse_str(item['text'])
                 timestamp = int(float(item['ts']))
                 uuid = item['user']
 
@@ -61,12 +61,8 @@ class SlackBot(object):
                     elif cmd in command.aliases['help']:
                         command.help(argv)
 
-                except NotEnoughArgumentError as e:
+                except parser.NotEnoughArgumentError as e:
                     self.reply(item['channel'], uuid, e)
-
-    def _parse_message(self, message):
-        args = message.strip().split()
-        return args[0].lower(), args[1:]
 
     def reply(self, channel, user, text):
         message = '<@{}>: {}'.format(user, text)
