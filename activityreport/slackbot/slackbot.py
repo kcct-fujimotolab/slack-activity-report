@@ -2,8 +2,7 @@ import time
 
 from slackclient import SlackClient
 
-from . import command
-from . import parser
+from . import command, parser
 
 
 class ConnectionFailedError(Exception):
@@ -53,7 +52,8 @@ class SlackBot(object):
 
                     elif cmd in command.aliases['description']:
                         res = command.description(uuid, argv)
-                        self.reply(item['channel'], uuid, 'ok'.format(**res))
+                        self.reply(
+                            item['channel'], uuid, 'Update description at {date}: {message}'.format(**res))
 
                     elif cmd in command.aliases['build']:
                         command.build(uuid, argv)
@@ -61,7 +61,7 @@ class SlackBot(object):
                     elif cmd in command.aliases['help']:
                         command.help(argv)
 
-                except parser.NotEnoughArgumentError as e:
+                except Exception as e:
                     self.reply(item['channel'], uuid, e)
 
     def reply(self, channel, user, text):

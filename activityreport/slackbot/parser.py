@@ -1,4 +1,7 @@
+import datetime
 import shlex
+
+import dateutil.parser
 
 
 class NotEnoughArgumentError(Exception):
@@ -9,9 +12,14 @@ class CommandArguments(object):
 
     def __init__(self):
         self._defined_args = []
+        self.typeobj = type
 
-    def define(self, name, optional=False):
-        self._defined_args.append({'name': name, 'optional': optional})
+    def define(self, name, optional=False, type=str):
+        if not isinstance(type, self.typeobj):
+            raise TypeError("invalid type for define(): {}".format(type))
+
+        self._defined_args.append(
+            {'name': name, 'optional': optional, 'type': type})
 
     def parse(self, argv):
         args = _ArgumentsDictionary()
@@ -20,7 +28,24 @@ class CommandArguments(object):
         for i, defined_arg in enumerate(self._defined_args):
             # when get the argument
             if n_args > i:
-                args[defined_arg['name']] = argv[i]
+                if defined_arg['type'] in (datetime.datetime, datetime.date, datetime.time):
+                    try:
+                        dt = dateutil.parser.parse(argv[i])
+
+                        if defined_arg['type'] == datetime.datetime:
+                            args[defined_arg['name']] = dt
+
+                        if defined_arg['type'] == datetime.date:
+                            args[defined_arg['name']] = dt.date()
+
+                        if defined_arg['type'] == datetime.time:
+                            args[defined_arg['name']] = dt.time()
+
+                    except Exception as e:
+                        raise ValueError(e)
+
+                else:
+                    args[defined_arg['name']] = argv[i]
 
             # when cannot get the optional argument
             elif defined_arg['optional']:
