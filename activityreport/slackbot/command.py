@@ -91,7 +91,7 @@ def description(uuid, argv):
     user = storage.User(uuid)
     user.description(args.message, date)
 
-    return {'message': args.message}
+    return {'message': args.message, 'date': date}
 
 
 def build(uuid, argv):

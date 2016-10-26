@@ -52,7 +52,8 @@ class SlackBot(object):
 
                     elif cmd in command.aliases['description']:
                         res = command.description(uuid, argv)
-                        self.reply(item['channel'], uuid, 'ok'.format(**res))
+                        self.reply(
+                            item['channel'], uuid, 'Update description at {date}: {message}'.format(**res))
 
                     elif cmd in command.aliases['build']:
                         command.build(uuid, argv)
