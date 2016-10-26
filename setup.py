@@ -10,6 +10,7 @@ setup(name='slack-activity-report',
           ],
       },
       install_requires=[
-          'slackclient'
+          'slackclient',
+          'dateutil',
       ],
       )
