@@ -1,3 +1,6 @@
+import shlex
+
+
 class NotEnoughArgumentError(Exception):
     pass
 
@@ -38,5 +41,5 @@ class _ArgumentsDictionary(dict):
 
 
 def parse_str(string):
-    args = string.strip().split()
+    args = shlex.split(string)
     return args[0].lower(), args[1:]
