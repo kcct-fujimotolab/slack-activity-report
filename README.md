@@ -11,7 +11,7 @@ pip install -U git+https://github.com/kcct-fujimotolab/slack-activity-report.git
 ```
 
 ### Setting
-First, you are going to [https://my.slack.com/services/new/bot](create a new slackbot).
+First, you are going to [create a new slackbot](https://my.slack.com/services/new/bot).
 
 And set some environment variables before running slackbot:
 ```sh
