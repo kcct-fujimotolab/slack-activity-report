@@ -16,7 +16,7 @@ class CommandArguments(object):
 
     def define(self, name, optional=False, type=str):
         if not isinstance(type, self.typeobj):
-            raise TypeError("invalid type for define(): {}".format(type))
+            raise TypeError('invalid type for define(): {}'.format(type))
 
         self._defined_args.append(
             {'name': name, 'optional': optional, 'type': type})
