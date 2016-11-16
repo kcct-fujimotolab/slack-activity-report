@@ -1,6 +1,7 @@
 import time
 
 from slackclient import SlackClient
+from websocket._exceptions import WebSocketConnectionClosedException
 
 from . import command, parser
 
@@ -15,14 +16,29 @@ class SlackBot(object):
         self.client = SlackClient(token)
         self.token = token
 
-    def run(self, interval=1):
-        if self.client.rtm_connect():
-            while True:
+    def run(self, interval=1, max_retrieval=5):
+        self._connect()
+        retrieval_count = 0
+
+        while True:
+            try:
                 data = self.client.rtm_read()
                 if len(data) > 0:
                     self._parse_response(data)
+                retrieval_count = 0
                 time.sleep(interval)
-        else:
+            except WebSocketConnectionClosedException:
+                if retrieval_count < max_retrieval:
+                    self._connect()
+                    sleep(1)
+                    retrieval_count += 1
+                else:
+                    raise ConnectionFailedError()
+
+    def _connect(self):
+        result = self.client.rtm_connect()
+
+        if not result:
             raise ConnectionFailedError()
 
     def _parse_response(self, data):
