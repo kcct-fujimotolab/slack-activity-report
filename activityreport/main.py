@@ -1,8 +1,7 @@
 import os
 import sys
 
-from . import storage
-from .slackbot import SlackBot
+from . import slackbot, storage
 
 
 def eprint(*args, exit=False, **kargs):
@@ -21,12 +20,12 @@ def main():
             'Error: please set the ACTREP_SLACKBOT_TOKEN environment variable.', exit=True)
 
     storage.init_db('{}/.sqlite'.format(home_dir))
-    slackbot = SlackBot(token)
+    bot = slackbot.SlackBot(token)
 
     if interval:
-        slackbot.run(float(interval))
+        bot.run(float(interval))
     else:
-        slackbot.run()
+        bot.run()
 
 
 if __name__ == '__main__':
