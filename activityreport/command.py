@@ -1,7 +1,6 @@
 import datetime
 
-from . import parser
-from .. import storage
+from . import parser, storage
 
 aliases = {
     'config': ('config', ),
