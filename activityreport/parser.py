@@ -44,6 +44,12 @@ class CommandArguments(object):
                     except Exception as e:
                         raise ValueError(e)
 
+                elif defined_arg['type'] == int:
+                    args[defined_arg['name']] = int(argv[i])
+
+                elif defined_arg['type'] == float:
+                    args[defined_arg['name']] = float(argv[i])
+
                 else:
                     args[defined_arg['name']] = argv[i]
 
