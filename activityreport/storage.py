@@ -41,7 +41,7 @@ class User(object):
         cursor = connection.cursor()
         cursor.execute('''INSERT INTO users(slack_uuid)
                        SELECT :uuid WHERE NOT EXISTS (
-                       SELECT 1 FROM users WHERE slack_uuid = :uuid)''', {'uuid': self.slack_uuid})
+                       SELECT id FROM users WHERE slack_uuid = :uuid)''', {'uuid': self.slack_uuid})
         cursor.execute(
             '''SELECT * FROM users WHERE slack_uuid = ?''', (self.slack_uuid, ))
         self.id, _, self.name = cursor.fetchone()
