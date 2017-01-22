@@ -14,14 +14,10 @@ aliases = {
 
 
 def config(uuid, argv):
-    try:
-        cmdarg = parser.CommandArguments()
-        cmdarg.define('key')
-        cmdarg.define('value')
-        args = cmdarg.parse(argv)
-
-    except parser.NotEnoughArgumentError:
-        raise
+    cmdarg = parser.CommandArguments()
+    cmdarg.define('key')
+    cmdarg.define('value')
+    args = cmdarg.parse(argv)
 
     user = storage.User(uuid)
     user.config(args.key, args.value)
@@ -30,13 +26,9 @@ def config(uuid, argv):
 
 
 def login(uuid, argv, timestamp):
-    try:
-        cmdarg = parser.CommandArguments()
-        cmdarg.define('time', optional=True, type=datetime.datetime)
-        args = cmdarg.parse(argv)
-
-    except (parser.NotEnoughArgumentError, ValueError):
-        raise
+    cmdarg = parser.CommandArguments()
+    cmdarg.define('time', optional=True, type=datetime.datetime)
+    args = cmdarg.parse(argv)
 
     dt = args.time or datetime.datetime.fromtimestamp(timestamp)
 
@@ -47,13 +39,9 @@ def login(uuid, argv, timestamp):
 
 
 def logout(uuid, argv, timestamp):
-    try:
-        cmdarg = parser.CommandArguments()
-        cmdarg.define('time', optional=True, type=datetime.datetime)
-        args = cmdarg.parse(argv)
-
-    except (parser.NotEnoughArgumentError, ValueError):
-        raise
+    cmdarg = parser.CommandArguments()
+    cmdarg.define('time', optional=True, type=datetime.datetime)
+    args = cmdarg.parse(argv)
 
     dt = args.time or datetime.datetime.fromtimestamp(timestamp)
 
@@ -64,26 +52,18 @@ def logout(uuid, argv, timestamp):
 
 
 def inout(uuid, argv):
-    try:
-        cmdarg = parser.CommandArguments()
-        cmdarg.define('date')
-        cmdarg.define('time_from')
-        cmdarg.define('time_to')
-        args = cmdarg.parse(argv)
-
-    except parser.NotEnoughArgumentError:
-        raise
+    cmdarg = parser.CommandArguments()
+    cmdarg.define('date')
+    cmdarg.define('time_from')
+    cmdarg.define('time_to')
+    args = cmdarg.parse(argv)
 
 
 def description(uuid, argv):
-    try:
-        cmdarg = parser.CommandArguments()
-        cmdarg.define('message')
-        cmdarg.define('date', optional=True, type=datetime.date)
-        args = cmdarg.parse(argv)
-
-    except (parser.NotEnoughArgumentError, ValueError):
-        raise
+    cmdarg = parser.CommandArguments()
+    cmdarg.define('message')
+    cmdarg.define('date', optional=True, type=datetime.date)
+    args = cmdarg.parse(argv)
 
     date = args.date or datetime.date.today()
 
@@ -94,19 +74,11 @@ def description(uuid, argv):
 
 
 def build(uuid, argv):
-    try:
-        cmdarg = parser.CommandArguments()
-        cmdarg.define('month', optional=True)
-        args = cmdarg.parse(argv)
-
-    except parser.NotEnoughArgumentError:
-        raise
+    cmdarg = parser.CommandArguments()
+    cmdarg.define('month', optional=True)
+    args = cmdarg.parse(argv)
 
 
 def help(argv):
-    try:
-        cmdarg = parser.CommandArguments()
-        args = cmdarg.parse(argv)
-
-    except parser.NotEnoughArgumentError:
-        raise
+    cmdarg = parser.CommandArguments()
+    args = cmdarg.parse(argv)
