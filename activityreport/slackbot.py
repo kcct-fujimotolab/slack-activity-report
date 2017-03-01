@@ -45,24 +45,24 @@ class SlackBot(object):
         for item in data:
             if ('type' in item) and (item['type'] == 'message') and ('subtype' not in item):
                 self._command(item['text'], int(
-                    float(item['ts'])), item['user'])
+                    float(item['ts'])), item['user'], item['channel'])
 
-    def _command(self, args, timestamp, user_id):
+    def _command(self, args, timestamp, user_id, channel):
         try:
             cmd, argv = parser.parse_str(args)
 
             if cmd in command.aliases['config']:
                 res = command.config(user_id, argv)
-                self.reply(item['channel'], user_id, 'ok'.format(**res))
+                self.reply(channel, user_id, 'ok'.format(**res))
 
             elif cmd in command.aliases['login']:
                 res = command.login(user_id, argv, timestamp)
-                self.reply(item['channel'], user_id,
+                self.reply(channel, user_id,
                            'logged-in at {time}'.format(**res))
 
             elif cmd in command.aliases['logout']:
                 res = command.logout(user_id, argv, timestamp)
-                self.reply(item['channel'], user_id,
+                self.reply(channel, user_id,
                            'logged-out at {time}'.format(**res))
 
             elif cmd in command.aliases['inout']:
@@ -71,16 +71,20 @@ class SlackBot(object):
             elif cmd in command.aliases['description']:
                 res = command.description(user_id, argv)
                 self.reply(
-                    item['channel'], user_id, 'Update description at {date}: {message}'.format(**res))
+                    channel, user_id, 'Update description at {date}: {message}'.format(**res))
 
             elif cmd in command.aliases['build']:
                 command.build(user_id, argv)
+
+            elif cmd in command.aliases['list']:
+                res = command.build(user_id, argv)
+                self.reply(channel, user_id, '\n' + res)
 
             elif cmd in command.aliases['help']:
                 command.help(argv)
 
         except Exception as e:
-            self.reply(item['channel'], user_id, e)
+            self.reply(channel, user_id, e)
 
     def reply(self, channel, user, text):
         message = '<@{}>: {}'.format(user, text)
