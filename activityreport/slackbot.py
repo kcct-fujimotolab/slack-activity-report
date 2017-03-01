@@ -77,8 +77,7 @@ class SlackBot(object):
                 command.build(user_id, argv)
 
             elif cmd in command.aliases['list']:
-                res = command.build(user_id, argv)
-                self.reply(channel, user_id, '\n' + res)
+                res = command.list(user_id, argv)
 
             elif cmd in command.aliases['help']:
                 command.help(argv)

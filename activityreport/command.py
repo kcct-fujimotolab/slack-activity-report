@@ -9,6 +9,7 @@ aliases = {
     'inout': ('inout', 'io'),
     'description': ('description', 'd'),
     'build': ('build', ),
+    'list': ('list', 'ls', 'l'),
     'help': ('help', 'h'),
 }
 
@@ -77,6 +78,22 @@ def build(uuid, argv):
     cmdarg = parser.CommandArguments()
     cmdarg.define('month', optional=True)
     args = cmdarg.parse(argv)
+
+
+def list(uuid, argv):
+    cmdarg = parser.CommandArguments()
+    cmdarg.define('month', optional=True)
+    args = cmdarg.parse(argv)
+
+    user = storage.User(uuid)
+
+    today = datetime.date.today()
+    month = args.month or today.month
+    year = today.year
+    since = datetime.datetime.min.replace(year=year, month=month)
+    until = datetime.datetime.max.replace(year=year, month=month)
+
+    return user.activities(since=since, until=until)
 
 
 def help(argv):

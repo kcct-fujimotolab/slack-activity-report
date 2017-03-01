@@ -104,3 +104,28 @@ class User(object):
                 'UPDATE users SET name = ? WHERE id = ?', (value, self.id))
             cursor.close()
             self.name = value
+
+    def activities(self, since=None, until=None):
+        cursor = connection.cursor()
+        if since is None and until is None:
+            cursor.execute('''SELECT * FROM activities
+                           WHERE
+                           user_id = :user_id
+                           ''', {'user_id': self.id})
+        else:
+            cursor.execute('''SELECT * FROM activities
+                           WHERE
+                           user_id = :user_id AND (DATE(:since) <= DATE(start_time) AND DATE(end_time) <= DATE(:until))
+                           ''', {'user_id': self.id, 'since': since, 'until': until})
+        acts = cursor.fetchall()
+        cursor.close()
+
+        acts = [{
+            'activity_id': a[0],
+            'user_id': a[1],
+            'start_time': a[2],
+            'end_time': a[3],
+            'content': a[4],
+        } for a in acts]
+
+        return acts
