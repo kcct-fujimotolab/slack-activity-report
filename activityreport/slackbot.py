@@ -48,9 +48,9 @@ class SlackBot(object):
                     float(item['ts'])), item['user'])
 
     def _command(self, args, timestamp, user_id):
-        cmd, argv = parser.parse_str(args)
-
         try:
+            cmd, argv = parser.parse_str(args)
+
             if cmd in command.aliases['config']:
                 res = command.config(user_id, argv)
                 self.reply(item['channel'], user_id, 'ok'.format(**res))
