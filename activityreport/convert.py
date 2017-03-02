@@ -17,8 +17,8 @@ class Converter():
         self.sumhoursXY = (1080, 2869, 1250, 2943)
         self.img = None
 
-    def to_png(self, name, intime, outtime, descriptions):
-        months = list(filter(lambda m:type(m) is not None, intime))
+    def to_png(self, name, intime, outtime, descriptions, font):
+        months = list(filter(lambda m: type(m) is not None, intime))
         month = ["{0:2d}".format(months[0].month)]
         intimeint = [self._period30min(d.hour, d.minute) if d is not None else (
             None, None) for d in intime]
@@ -40,7 +40,7 @@ class Converter():
             description if description is not None else "" for description in descriptions]
 
         textimage = TextImage(
-            font='/Library/Fonts/ヒラギノ丸ゴ ProN W4.ttc', occupancy=0.6)
+            font=font, occupancy=0.6)
         # test output
         self.img = textimage(self.baseimage, month, *self.monthXY)
         self.img = textimage(self.img, [name], *self.nameXY)
@@ -52,7 +52,6 @@ class Converter():
         self.img = textimage(self.img, sumhours, *self.sumhoursXY)
 
     def save(self, filename):
-
         self.img.save(filename)
 
     def _period30min(self, hour, minute):
@@ -72,4 +71,3 @@ class Converter():
             return (outhour - inhour - 1) + 0.5
         else:
             return (outhour - inhour) + (outminute - inminute) / 60.0
-
