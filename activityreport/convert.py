@@ -1,7 +1,8 @@
-from ArrayImage.ArrayImage import TextImage
 import datetime
-from PIL import Image
 import os
+
+from ArrayImage.ArrayImage import TextImage
+from PIL import Image
 
 
 class Converter():
