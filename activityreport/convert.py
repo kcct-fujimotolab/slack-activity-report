@@ -3,7 +3,7 @@ import datetime
 from PIL import Image
 
 
-class ConvertToPNG():
+class Converter():
 
     def __init__(self, imgpath='report.png'):
         self.baseimage = Image.open(imgpath)
@@ -17,9 +17,9 @@ class ConvertToPNG():
         self.sumhoursXY = (1080, 2869, 1250, 2943)
         self.img = None
 
-    def topng(self, name, intime, outtime, descriptions):
+    def to_png(self, name, intime, outtime, descriptions):
         months = list(filter(lambda m:type(m) is not None, intime))
-        month = ["{0:2d}".format(months[0])]
+        month = ["{0:2d}".format(months[0].month)]
         intimeint = [self._period30min(d.hour, d.minute) if d is not None else (
             None, None) for d in intime]
         outtimeint = [self._period30min(d.hour, d.minute) if d is not None else (
@@ -72,3 +72,4 @@ class ConvertToPNG():
             return (outhour - inhour - 1) + 0.5
         else:
             return (outhour - inhour) + (outminute - inminute) / 60.0
+
