@@ -3,6 +3,8 @@ import time
 from slackclient import SlackClient
 from websocket._exceptions import WebSocketConnectionClosedException
 
+from slacker import Slacker
+
 from . import command, parser
 
 
@@ -14,7 +16,11 @@ class SlackBot(object):
 
     def __init__(self, token):
         self.client = SlackClient(token)
+        self.slack = Slacker(token)
         self.token = token
+        self.all_members = self.slack.users.list().body['members']
+        self.members = [m for m in self.all_members if not m.get('is_bot')]
+        self.bots = [m for m in self.all_members if m.get('is_bot')]
 
     def run(self, interval=1, max_retry_count=5):
         self._connect()
@@ -42,8 +48,9 @@ class SlackBot(object):
             raise ConnectionFailedError()
 
     def _parse_response(self, data):
+        member_ids = [m['id'] for m in self.members]
         for item in data:
-            if ('type' in item) and (item['type'] == 'message') and ('subtype' not in item):
+            if item.get('type') == 'message' and item.get('user') in member_ids:
                 self._command(item['text'], int(
                     float(item['ts'])), item['user'], item['channel'])
 
