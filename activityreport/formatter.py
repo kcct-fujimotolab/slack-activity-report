@@ -1,5 +1,4 @@
 import datetime
-import math
 
 
 def _element_to_string(date_time_list_element):
@@ -34,12 +33,14 @@ def _ret_gfm(date_time_list):
         for j, y in enumerate(x):
             if isinstance(y, int):
                 # get maximum number of digits
-                max_number_of_digits = len(str(max(transposed_date_time_list[j])))
+                max_number_of_digits = len(
+                    str(max(transposed_date_time_list[j])))
                 gfm += str(y).rjust(max_number_of_digits, ' ')  # align right
                 gfm += '|'
             else:
                 # get length of maximum length str
-                max_str_length = len(max(transposed_date_time_list[j], key=len))
+                max_str_length = len(
+                    max(transposed_date_time_list[j], key=len))
                 gfm += str(y).ljust(max_str_length, ' ')  # align left
                 gfm += '|'
 
