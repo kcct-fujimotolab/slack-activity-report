@@ -7,7 +7,7 @@ from ArrayImage.ArrayImage import TextImage
 
 class Converter():
 
-    def __init__(self, font):
+    def __init__(self, font=os.path.join(os.path.dirname(__file__), 'fonts', 'ipaexg.ttf')):
         imgpath = os.path.join(os.path.dirname(__file__), 'report.png')
         self.font = font
         self.baseimage = Image.open(imgpath)
