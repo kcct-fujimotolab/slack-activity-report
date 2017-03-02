@@ -12,5 +12,6 @@ setup(name='slack-activity-report',
       install_requires=[
           'slackclient',
           'python-dateutil',
+          'click',
       ],
       )

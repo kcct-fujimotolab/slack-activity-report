@@ -25,7 +25,7 @@ Other environment variables, if not set, will be `ACTREP_ROOT` is `~/.actrep` an
 ### Running
 You can start slackbot from the command line:
 ```
-slackbot-activity-report
+slackbot-activity-report start
 ```
 
 ## Usage of Slackbot
