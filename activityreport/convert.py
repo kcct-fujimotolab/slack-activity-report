@@ -1,11 +1,13 @@
 from ArrayImage.ArrayImage import TextImage
 import datetime
 from PIL import Image
+import os
 
 
 class Converter():
 
-    def __init__(self, imgpath='report.png', font):
+    def __init__(self, font):
+        imgpath = os.path.join(os.path.dirname(__file__), 'report.png')
         self.font = font
         self.baseimage = Image.open(imgpath)
         self.nameXY = (1200, 400, 1500, 474)
