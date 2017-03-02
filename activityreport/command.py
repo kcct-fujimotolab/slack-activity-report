@@ -1,6 +1,9 @@
 import datetime
+import tempfile
 
-from . import parser, storage
+import dateutil.parser
+
+from . import convert, formatter, parser, storage
 
 aliases = {
     'config': ('config', ),
@@ -10,92 +13,127 @@ aliases = {
     'description': ('description', 'd'),
     'build': ('build', ),
     'list': ('list', 'ls', 'l'),
-    'help': ('help', 'h'),
 }
 
 
-def config(uuid, argv):
-    cmdarg = parser.CommandArguments()
-    cmdarg.define('key')
-    cmdarg.define('value')
-    args = cmdarg.parse(argv)
+class Command(object):
 
-    user = storage.User(uuid)
-    user.config(args.key, args.value)
+    def __init__(self, uuid):
+        self.uuid = uuid
+        self.user = storage.User(uuid)
 
-    return {'key': args.key, 'value': args.value}
+    def execute(self, args):
+        if isinstance(args, str):
+            args = parser.parse_str(args)
 
+        if not isinstance(args, list):
+            raise TypeError('args should be list or str')
 
-def login(uuid, argv, timestamp):
-    cmdarg = parser.CommandArguments()
-    cmdarg.define('time', optional=True, type=datetime.datetime)
-    args = cmdarg.parse(argv)
+        cmd = args[0].lower()
+        argv = args[1:]
 
-    dt = args.time or datetime.datetime.fromtimestamp(timestamp)
+        if cmd in aliases['config']:
+            key, value = self.config(*argv)
+            return 'Saved as `{}` = `{}`'.format(key, value), 'text'
 
-    user = storage.User(uuid)
-    user.login(dt)
+        elif cmd in aliases['login']:
+            dt = self.login(*argv)
+            return 'Logged-in at {}'.format(dt), 'text'
 
-    return {'time': str(dt)}
+        elif cmd in aliases['logout']:
+            dt = self.logout(*argv)
+            return 'Logged-out at {}'.format(dt), 'text'
 
+        elif cmd in aliases['description']:
+            message, date = self.description(*argv)
+            return 'Update description: {} ({})'.format(message, date), 'text'
 
-def logout(uuid, argv, timestamp):
-    cmdarg = parser.CommandArguments()
-    cmdarg.define('time', optional=True, type=datetime.datetime)
-    args = cmdarg.parse(argv)
+        elif cmd in aliases['build']:
+            filepath = self.build(*argv)
+            return filepath, 'filepath'
 
-    dt = args.time or datetime.datetime.fromtimestamp(timestamp)
+        elif cmd in aliases['list']:
+            text = self.list(*argv)
+            return text, 'text'
 
-    user = storage.User(uuid)
-    user.logout(dt)
+    def config(self, key, value):
+        self.user.config(key, value)
+        return key, value
 
-    return {'time': str(dt)}
+    def login(self, dt=datetime.datetime.now()):
+        if isinstance(dt, str):
+            dt = dateutil.parser.parse(dt)
+        self.user.login(dt)
+        return dt
 
+    def logout(self, dt=datetime.datetime.now()):
+        if isinstance(dt, str):
+            dt = dateutil.parser.parse(dt)
+        self.user.logout(dt)
+        return dt
 
-def inout(uuid, argv):
-    cmdarg = parser.CommandArguments()
-    cmdarg.define('date')
-    cmdarg.define('time_from')
-    cmdarg.define('time_to')
-    args = cmdarg.parse(argv)
+    def description(self, message, date=datetime.date.today()):
+        if isinstance(date, str):
+            dt = dateutil.parser.parse(dt).date()
+        self.user.description(message, date)
+        return message, date
 
+    def build(self, month=datetime.date.today().month):
+        activities = self._activities(month)
+        activities = [a for a in activities
+                      if a[0].date() == a[1].date()]
+        days = [a[0].day for a in activities]
+        activities = [activities[days.index(i)]
+                      if i in days else (None, None, '')
+                      for i in range(1, 32)]
+        print(activities)
 
-def description(uuid, argv):
-    cmdarg = parser.CommandArguments()
-    cmdarg.define('message')
-    cmdarg.define('date', optional=True, type=datetime.date)
-    args = cmdarg.parse(argv)
+        converter = convert.Converter()
+        converter.to_png(self.user.name or '',
+                         [a[0] for a in activities],
+                         [a[1] for a in activities],
+                         [a[2] for a in activities])
+        _, filepath = tempfile.mkstemp(suffix='.png')
+        converter.save(filepath)
+        return filepath
 
-    date = args.date or datetime.date.today()
+    def list(self, month=None):
+        activities = self._activities(month)
+        return ('```'
+                '{}'
+                '```'
+                .format(formatter.to_gfm_table(activities)))
 
-    user = storage.User(uuid)
-    user.description(args.message, date)
+    def _activities(self, month=None):
+        if month is None:
+            since = until = None
+        else:
+            since, until = self._datetime_range(int(month))
+        activities = self.user.activities(since, until)
+        activities = [(a['start_time'], a['end_time'], a['content'] or '')
+                      for a in activities
+                      if a['start_time'] is not None and a['end_time'] is not None]
+        return activities
 
-    return {'message': args.message, 'date': date}
+    def _datetime_range(self, month=datetime.date.today().month):
+        today = datetime.date.today()
+        # 4 <= today.month <= 12
+        if today.month in range(4, 12 + 1):
+            # 4 <= month <= 12
+            if month in range(4, 12 + 1):
+                year = today.year
+            # 1 <= month <= 3
+            else:
+                year = today.year + 1
+        # 1 <= today.month <= 3
+        else:
+            # 4 <= month <= 12
+            if month in range(4, 12 + 1):
+                year = today.year - 1
+            # 1 <= month <= 3
+            else:
+                year = today.year
 
-
-def build(uuid, argv):
-    cmdarg = parser.CommandArguments()
-    cmdarg.define('month', optional=True)
-    args = cmdarg.parse(argv)
-
-
-def list(uuid, argv):
-    cmdarg = parser.CommandArguments()
-    cmdarg.define('month', optional=True)
-    args = cmdarg.parse(argv)
-
-    user = storage.User(uuid)
-
-    today = datetime.date.today()
-    month = args.month or today.month
-    year = today.year
-    since = datetime.datetime.min.replace(year=year, month=month)
-    until = datetime.datetime.max.replace(year=year, month=month)
-
-    return user.activities(since=since, until=until)
-
-
-def help(argv):
-    cmdarg = parser.CommandArguments()
-    args = cmdarg.parse(argv)
+        since = datetime.datetime.min.replace(year=year, month=month)
+        until = datetime.datetime.max.replace(year=year, month=month)
+        return since, until

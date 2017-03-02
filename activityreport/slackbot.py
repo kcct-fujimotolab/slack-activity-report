@@ -5,7 +5,7 @@ from websocket._exceptions import WebSocketConnectionClosedException
 
 from slacker import Slacker
 
-from . import command, parser
+from . import command
 
 
 class ConnectionFailedError(Exception):
@@ -51,47 +51,21 @@ class SlackBot(object):
         member_ids = [m['id'] for m in self.members]
         for item in data:
             if item.get('type') == 'message' and item.get('user') in member_ids:
-                self._command(item['text'], int(
-                    float(item['ts'])), item['user'], item['channel'])
-
-    def _command(self, args, timestamp, user_id, channel):
-        try:
-            cmd, argv = parser.parse_str(args)
-
-            if cmd in command.aliases['config']:
-                res = command.config(user_id, argv)
-                self.reply(channel, user_id, 'ok'.format(**res))
-
-            elif cmd in command.aliases['login']:
-                res = command.login(user_id, argv, timestamp)
-                self.reply(channel, user_id,
-                           'logged-in at {time}'.format(**res))
-
-            elif cmd in command.aliases['logout']:
-                res = command.logout(user_id, argv, timestamp)
-                self.reply(channel, user_id,
-                           'logged-out at {time}'.format(**res))
-
-            elif cmd in command.aliases['inout']:
-                command.inout(user_id, argv)
-
-            elif cmd in command.aliases['description']:
-                res = command.description(user_id, argv)
-                self.reply(
-                    channel, user_id, 'Update description at {date}: {message}'.format(**res))
-
-            elif cmd in command.aliases['build']:
-                command.build(user_id, argv)
-
-            elif cmd in command.aliases['list']:
-                res = command.list(user_id, argv)
-
-            elif cmd in command.aliases['help']:
-                command.help(argv)
-
-        except Exception as e:
-            self.reply(channel, user_id, e)
+                cmd = command.Command(item['user'])
+                try:
+                    response, content_type = cmd.execute(item['text'])
+                except Exception as e:
+                    self.reply(item['channel'], item['user'], e)
+                else:
+                    if response is not None:
+                        if content_type == 'text':
+                            self.reply(item['channel'], item['user'], response)
+                        elif content_type == 'filepath':
+                            self.upload_file(item['channel'], response)
 
     def reply(self, channel, user, text):
         message = '<@{}>: {}'.format(user, text)
         self.client.rtm_send_message(channel, message)
+
+    def upload_file(self, channel, filepath):
+        self.slack.files.upload(filepath, channels=channel)
