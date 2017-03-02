@@ -22,7 +22,7 @@ class Converter():
         self.img = None
 
     def to_png(self, name, intime, outtime, descriptions):
-        months = list(filter(lambda m: type(m) is not None, intime))
+        months = list(filter(lambda m: m is not None, intime))
         month = ["{0:2d}".format(months[0].month)]
         intimeint = [self._period30min(d.hour, d.minute) if d is not None else (
             None, None) for d in intime]
