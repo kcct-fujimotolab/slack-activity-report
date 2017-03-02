@@ -14,6 +14,6 @@ setup(name='slack-activity-report',
           'ArrayImage'
       ],
       dependency_links=[
-          'git+https://github.com/Lynte/python-ArrayImage.git#egg=ArrayImage'
+          'git+https://github.com/rysmarie/python-ArrayImage.git#egg=ArrayImage'
           ],
       )
