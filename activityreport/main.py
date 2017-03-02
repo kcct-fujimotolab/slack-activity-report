@@ -24,7 +24,9 @@ def main():
               help='The slackbot\'s token. Defaults to ACTREP_SLACKBOT_TOKEN environment variable.')
 @click.option('--interval', '-i', envvar='ACTREP_SLACKBOT_INTERVAL', default=1.0, type=float,
               help='The interval of the bot confirms input from users. Defaults to ACTREP_SLACKBOT_INTERVAL environment variable or 1.0.')
-def start(token, interval, max_retrieval):
+@click.option('--retry-count', '-r', default=5, type=int,
+              help='The number of maximum retry count. Default to 5.')
+def start(token, interval, retry_count):
     if token is None:
         eprint(
             'Error: please set the ACTREP_SLACKBOT_TOKEN environment variable or --token option.', exit=True)
@@ -32,7 +34,7 @@ def start(token, interval, max_retrieval):
     storage.init_db(os.path.join(home_dir, '.sqlite'))
     bot = slackbot.SlackBot(token)
 
-    bot.run(interval, max_retrieval)
+    bot.run(interval, retry_count)
 
 
 if __name__ == '__main__':
