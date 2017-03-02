@@ -5,7 +5,8 @@ from PIL import Image
 
 class Converter():
 
-    def __init__(self, imgpath='report.png'):
+    def __init__(self, imgpath='report.png', font):
+        self.font = font
         self.baseimage = Image.open(imgpath)
         self.nameXY = (1200, 400, 1500, 474)
         self.monthXY = (270, 400, 330, 474)
@@ -17,7 +18,7 @@ class Converter():
         self.sumhoursXY = (1080, 2869, 1250, 2943)
         self.img = None
 
-    def to_png(self, name, intime, outtime, descriptions, font):
+    def to_png(self, name, intime, outtime, descriptions):
         months = list(filter(lambda m: type(m) is not None, intime))
         month = ["{0:2d}".format(months[0].month)]
         intimeint = [self._period30min(d.hour, d.minute) if d is not None else (
@@ -40,7 +41,7 @@ class Converter():
             description if description is not None else "" for description in descriptions]
 
         textimage = TextImage(
-            font=font, occupancy=0.6)
+            font=self.font, occupancy=0.6)
         # test output
         self.img = textimage(self.baseimage, month, *self.monthXY)
         self.img = textimage(self.img, [name], *self.nameXY)
