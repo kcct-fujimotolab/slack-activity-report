@@ -11,7 +11,11 @@ setup(name='slack-activity-report',
       },
       install_requires=[
           'slackclient',
+          'ArrayImage',
           'python-dateutil',
           'click',
       ],
+      dependency_links=[
+          'git+https://github.com/rysmarie/python-ArrayImage.git#egg=ArrayImage'
+          ],
       )
