@@ -6,6 +6,7 @@ import click
 from . import slackbot, storage
 
 home_dir = os.environ.get('ACTREP_ROOT') or os.path.expanduser('~/.actrep')
+db_path = os.path.join(home_dir, '.sqlite')
 
 
 def eprint(*args, exit=False, **kargs):
@@ -31,9 +32,9 @@ def start(token, interval, retry_count):
         eprint(
             'Error: please set the ACTREP_SLACKBOT_TOKEN environment variable or --token option.', exit=True)
 
-    storage.init_db(os.path.join(home_dir, '.sqlite'))
-    bot = slackbot.SlackBot(token)
+    db = storage.Database(db_path)
 
+    bot = slackbot.SlackBot(token)
     bot.run(interval, retry_count)
 
 

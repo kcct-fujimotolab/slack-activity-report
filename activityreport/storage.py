@@ -1,23 +1,37 @@
 import os
 import sqlite3
 
-connection = None
 
+class Database(object):
+    __instance = None
 
-def init_db(db_file):
-    global connection
-    if connection is None:
+    def __new__(cls, *args, **kwargs):
+        if cls.__instance is None:
+            cls.__instance = object.__new__(cls)
+        return cls.__instance
+
+    def __init__(self, db_filepath):
         try:
-            os.makedirs(os.path.dirname(db_file))
+            os.makedirs(os.path.dirname(db_filepath))
         except:
             pass
 
-        connection = sqlite3.connect(db_file, detect_types=(
-            sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES), isolation_level=None)
-        sqlite3.dbapi2.converters[
-            'DATETIME'] = sqlite3.dbapi2.converters['TIMESTAMP']
+        if not hasattr(self, 'connection'):
+            self.connection = sqlite3.connect(db_filepath,
+                                              detect_types=(
+                                                  sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES),
+                                              isolation_level=None)
+            sqlite3.dbapi2.converters['DATETIME'] = \
+                sqlite3.dbapi2.converters['TIMESTAMP']
 
-        cursor = connection.cursor()
+        self._create_tables()
+
+    @classmethod
+    def get(self):
+        return self.__instance
+
+    def _create_tables(self):
+        cursor = self.connection.cursor()
         cursor.execute('''CREATE TABLE IF NOT EXISTS activities(
                           id INTEGER PRIMARY KEY,
                           user_id INTERGER NOT NULL,
@@ -37,8 +51,9 @@ class User(object):
 
     def __init__(self, slack_uuid):
         self.slack_uuid = slack_uuid
+        self.connection = Database.get().connection
 
-        cursor = connection.cursor()
+        cursor = self.connection.cursor()
         cursor.execute('''INSERT INTO users(slack_uuid)
                        SELECT :uuid WHERE NOT EXISTS (
                        SELECT id FROM users WHERE slack_uuid = :uuid)''', {'uuid': self.slack_uuid})
@@ -48,7 +63,7 @@ class User(object):
         cursor.close()
 
     def login(self, time):
-        cursor = connection.cursor()
+        cursor = self.connection.cursor()
 
         cursor.execute('''SELECT id FROM activities
                        WHERE
@@ -69,7 +84,7 @@ class User(object):
         cursor.close()
 
     def logout(self, time):
-        cursor = connection.cursor()
+        cursor = self.connection.cursor()
 
         cursor.execute('''SELECT id FROM activities
                        WHERE
@@ -90,7 +105,7 @@ class User(object):
         cursor.close()
 
     def description(self, content, date):
-        cursor = connection.cursor()
+        cursor = self.connection.cursor()
         cursor.execute('''UPDATE activities
                        SET content = :content
                        WHERE user_id = :id AND (DATE(start_time) = DATE(:time) OR DATE(end_time) = DATE(:time))''', {'content': content, 'time': date, 'id': self.id})
@@ -99,14 +114,14 @@ class User(object):
 
     def config(self, key, value):
         if key == 'name':
-            cursor = connection.cursor()
+            cursor = self.connection.cursor()
             cursor.execute(
                 'UPDATE users SET name = ? WHERE id = ?', (value, self.id))
             cursor.close()
             self.name = value
 
     def activities(self, since=None, until=None):
-        cursor = connection.cursor()
+        cursor = self.connection.cursor()
         if since is None and until is None:
             cursor.execute('''SELECT * FROM activities
                            WHERE
