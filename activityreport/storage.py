@@ -1,4 +1,3 @@
-import datetime
 import os
 import sqlite3
 
@@ -42,7 +41,7 @@ class User(object):
         cursor = connection.cursor()
         cursor.execute('''INSERT INTO users(slack_uuid)
                        SELECT :uuid WHERE NOT EXISTS (
-                       SELECT 1 FROM users WHERE slack_uuid = :uuid)''', {'uuid': self.slack_uuid})
+                       SELECT id FROM users WHERE slack_uuid = :uuid)''', {'uuid': self.slack_uuid})
         cursor.execute(
             '''SELECT * FROM users WHERE slack_uuid = ?''', (self.slack_uuid, ))
         self.id, _, self.name = cursor.fetchone()
@@ -90,12 +89,11 @@ class User(object):
 
         cursor.close()
 
-    def description(self, content, date=None):
-        dt = date or datetime.datetime.now()
+    def description(self, content, date):
         cursor = connection.cursor()
         cursor.execute('''UPDATE activities
                        SET content = :content
-                       WHERE DATE(start_time) = DATE(:time) OR DATE(end_time) = DATE(:time)''', {'content': content, 'time': dt})
+                       WHERE user_id = :id AND (DATE(start_time) = DATE(:time) OR DATE(end_time) = DATE(:time))''', {'content': content, 'time': date, 'id': self.id})
 
         cursor.close()
 
@@ -106,3 +104,28 @@ class User(object):
                 'UPDATE users SET name = ? WHERE id = ?', (value, self.id))
             cursor.close()
             self.name = value
+
+    def activities(self, since=None, until=None):
+        cursor = connection.cursor()
+        if since is None and until is None:
+            cursor.execute('''SELECT * FROM activities
+                           WHERE
+                           user_id = :user_id
+                           ''', {'user_id': self.id})
+        else:
+            cursor.execute('''SELECT * FROM activities
+                           WHERE
+                           user_id = :user_id AND (DATE(:since) <= DATE(start_time) AND DATE(end_time) <= DATE(:until))
+                           ''', {'user_id': self.id, 'since': since, 'until': until})
+        acts = cursor.fetchall()
+        cursor.close()
+
+        acts = [{
+            'activity_id': a[0],
+            'user_id': a[1],
+            'start_time': a[2],
+            'end_time': a[3],
+            'content': a[4],
+        } for a in acts]
+
+        return acts
