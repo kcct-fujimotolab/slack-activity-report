@@ -135,5 +135,7 @@ class Command(object):
                 year = today.year
 
         since = datetime.datetime.min.replace(year=year, month=month)
-        until = datetime.datetime.max.replace(year=year, month=month)
+        day_end_of_month = calendar.monthrange(year, month)[1]
+        until = datetime.datetime.max.replace(
+            year=year, month=month, day=day_end_of_month)
         return since, until
