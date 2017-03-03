@@ -74,7 +74,7 @@ class Command(object):
 
     def description(self, message, date=datetime.date.today()):
         if isinstance(date, str):
-            dt = dateutil.parser.parse(dt).date()
+            date = dateutil.parser.parse(date).date()
         self.user.description(message, date)
         return message, date
 
